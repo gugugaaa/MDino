@@ -38,44 +38,22 @@ def register_datasets(train: bool = True, val: bool = True, infer: bool = False)
 
 def generate_train_config():
     """Generates the training config YAML file for MaskDINO."""
-    config_path = pm.generated_config
+    config_path = pm.model_config
     config_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Paths relative to the MaskDINO repo
-    base_config_rel = pm.settings["maskdino"]["base_config"]
-    pretrained_weights_rel = pm.settings["maskdino"]["pretrained_weights"]
-    output_dir_rel = str(Path(pm.settings["maskdino"]["output_dir"]).relative_to(pm.project_root.parent))
+    # Get the template from settings
+    template = pm.settings["train_config_template"]
 
-    config_content = f"""_BASE_: "{base_config_rel}"
-DATASETS:
-  TRAIN: ("square_train",)
-  TEST: ("square_val",)
-DATALOADER:
-  NUM_WORKERS: 4
-MODEL:
-  WEIGHTS: "{pretrained_weights_rel}"
-  SEM_SEG_HEAD:
-    NUM_CLASSES: 1
-SOLVER:
-  IMS_PER_BATCH: 4
-  BASE_LR: 0.0001
-  MAX_ITER: 2000
-  STEPS: (1500, )
-  GAMMA: 0.1
-  WARMUP_ITERS: 100
-  AMP:
-    ENABLED: True
-  CHECKPOINT_PERIOD: 500
-INPUT:
-  MASK_FORMAT: "polygon"
-  MIN_SIZE_TRAIN: (320, 352, 288)
-  MAX_SIZE_TRAIN: 384
-  MIN_SIZE_TEST: 320
-  MAX_SIZE_TEST: 384
-TEST:
-  EVAL_PERIOD: 500
-OUTPUT_DIR: "{output_dir_rel}"
-"""
+    # Prepare substitutions
+    substitutions = {
+        "base_config": pm.settings["maskdino"]["base_config"],
+        "pretrained_weights": str(pm.pretrained_weights.relative_to(pm.maskdino_repo)),
+        "output_dir": str(pm.output_dir.relative_to(pm.maskdino_repo))
+    }
+
+    # Format the template
+    config_content = template.format(**substitutions)
+
     with config_path.open("w", encoding="utf-8") as f:
         f.write(config_content)
     print(f"Training config generated at: {config_path}")

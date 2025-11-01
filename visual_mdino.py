@@ -1,4 +1,3 @@
-import argparse
 from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
@@ -7,6 +6,7 @@ import cv2
 from pycocotools import mask as maskUtils
 
 from utils import DataProcessor
+from config import get_path_manager
 
 class Visualizer:
     """Handles the visualization of images and their corresponding masks."""
@@ -87,40 +87,31 @@ def run_visualization(visualizer: Visualizer, processor: DataProcessor, filtered
             if fig:
                 plt.show()
 
-def main(args):
+def main():
     """Main function to run the visualization script."""
-    processor = DataProcessor(threshold=args.threshold)
-    processor.load_annotations(Path(args.input))
-    processor.print_statistics(processor.annotations, args.top_k, title="Original Data")
+    pm = get_path_manager()
+    args = pm.settings["runs"]["visual_mdino"]
 
-    if args.statistics:
+    processor = DataProcessor(threshold=args["threshold"])
+    processor.load_annotations(Path(args["input"]))
+    processor.print_statistics(processor.annotations, args["top_k"], title="Original Data")
+
+    if args["statistics"]:
         print("\nStatistics mode finished.")
         return
 
     processor.filter_by_score()
 
-    if args.output:
-        processor.save_annotations(Path(args.output), processor.filtered_annotations)
+    if args["output"]:
+        processor.save_annotations(Path(args["output"]), processor.filtered_annotations)
 
-    processor.print_statistics(processor.filtered_annotations, args.top_k, title="Filtered Data")
+    processor.print_statistics(processor.filtered_annotations, args["top_k"], title="Filtered Data")
 
-    if args.visualize:
-        if not args.image_dir:
+    if args["visualize"]:
+        if not args["image_dir"]:
             raise ValueError("--image_dir is required for visualization.")
-        visualizer = Visualizer(Path(args.image_dir), args.img_fmt)
-        run_visualization(visualizer, processor, processor.filtered_annotations, args.batch)
+        visualizer = Visualizer(Path(args["image_dir"]), args["img_fmt"])
+        run_visualization(visualizer, processor, processor.filtered_annotations, args["batch"])
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Process and visualize annotation data.")
-    parser.add_argument("--input", type=str, required=True, help="Input JSON file path.")
-    parser.add_argument("--output", type=str, help="Output JSON file path.")
-    parser.add_argument("--image_dir", type=str, help="Image directory path for visualization.")
-    parser.add_argument("--threshold", type=float, default=0.8, help="Score threshold for filtering.")
-    parser.add_argument("--img_fmt", type=str, default="{image_id}.jpg", help="Image filename format.")
-    parser.add_argument("--visualize", action="store_true", help="Enable visualization.")
-    parser.add_argument("--batch", type=int, default=4, help="Number of images to visualize.")
-    parser.add_argument("--top_k", type=int, default=5, help="Top k scores for statistics.")
-    parser.add_argument("--statistics", action="store_true", help="Run in statistics-only mode.")
-
-    args = parser.parse_args()
-    main(args)
+    main()
