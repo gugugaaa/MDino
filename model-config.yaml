@@ -1,0 +1,29 @@
+_BASE_: "/root/MaskDINO/configs/coco/instance-segmentation/maskdino_R50_bs16_50ep_3s.yaml"
+DATASETS:
+  TRAIN: ("square_train",)
+  TEST: ("square_val",)
+DATALOADER:
+  NUM_WORKERS: 4
+MODEL:
+  WEIGHTS: "/root/square-seg-base/model/maskdino_r50.pth"
+  SEM_SEG_HEAD:
+    NUM_CLASSES: 1
+SOLVER:
+  IMS_PER_BATCH: 4
+  BASE_LR: 0.0001
+  MAX_ITER: 2000
+  STEPS: (1500, )
+  GAMMA: 0.1
+  WARMUP_ITERS: 100
+  AMP:
+    ENABLED: True
+  CHECKPOINT_PERIOD: 500
+INPUT:
+  MASK_FORMAT: "polygon"
+  MIN_SIZE_TRAIN: (320, 352, 288)
+  MAX_SIZE_TRAIN: 384
+  MIN_SIZE_TEST: 320
+  MAX_SIZE_TEST: 384
+TEST:
+  EVAL_PERIOD: 500
+OUTPUT_DIR: "/root/square-seg-base/output/maskdino_square"
