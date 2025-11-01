@@ -9,8 +9,10 @@ def main():
     # Register datasets
     register_datasets(train=True, val=True)
 
-    # Generate the training config file
-    generate_train_config()
+    # Generate the training config file if it doesn't exist
+    if not pm.model_config.exists():
+        print(f"Model config not found at {pm.model_config}. Generating...")
+        generate_train_config()
 
     # Change directory to the MaskDINO repo
     os.chdir(pm.maskdino_repo)
@@ -25,7 +27,7 @@ def main():
     args = parser.parse_args()
 
     # Set the config file path relative to the MaskDINO repo
-    args.config_file = pm.get_maskdino_relative_path(pm.generated_config)
+    args.config_file = pm.get_maskdino_relative_path(pm.model_config)
 
     print(f"Starting training with config: {args.config_file}")
     maskdino_main(args)

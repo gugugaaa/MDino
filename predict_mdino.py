@@ -1,6 +1,6 @@
 import os
 from config import get_path_manager
-from utils import register_datasets
+from utils import register_datasets, generate_train_config
 
 def main():
     """Main function to run the prediction process."""
@@ -8,6 +8,11 @@ def main():
 
     # Register datasets for inference
     register_datasets(train=False, val=False, infer=True)
+
+    # Generate the training config file if it doesn't exist
+    if not pm.model_config.exists():
+        print(f"Model config not found at {pm.model_config}. Generating...")
+        generate_train_config()
 
     # Change directory to the MaskDINO repo
     os.chdir(pm.maskdino_repo)
@@ -25,19 +30,16 @@ def main():
     args.eval_only = True
     args.num_gpus = 1
 
-    # Get model config and weights from settings
-    model_config_rel = pm.settings["maskdino"]["model_config"]
-    model_weights_abs = pm._resolve_path(pm.settings["maskdino"]["model_weights"])
-
-    args.config_file = model_config_rel
+    # Set the config file path relative to the MaskDINO repo
+    args.config_file = pm.get_maskdino_relative_path(pm.model_config)
     args.opts = [
-        "MODEL.WEIGHTS", str(model_weights_abs),
+        "MODEL.WEIGHTS", str(pm.model_weights),
         "MODEL.SEM_SEG_HEAD.NUM_CLASSES", "1",
     ]
 
     print("Starting inference...")
-    print(f"Config file: {pm.maskdino_repo / model_config_rel}")
-    print(f"Model weights: {model_weights_abs}")
+    print(f"Config file: {pm.model_config}")
+    print(f"Model weights: {pm.model_weights}")
 
     maskdino_main(args)
 
