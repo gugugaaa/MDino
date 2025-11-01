@@ -1,9 +1,9 @@
 maskdino:
-  repo_path: "/root/MaskDINO"
+  repo_path: "MaskDINO"
   base_config: "configs/coco/instance-segmentation/maskdino_R50_bs16_50ep_3s_dowsample1_2048.yaml"
   pretrained_weights: "../model/maskdino_r50.pth"
   output_dir: "../output/maskdino_square"
-  model_config: "/root/square-seg-base/MDino/model-config.yaml"
+  model_config: "model-config.yaml"
   model_weights: "../model/model_1499.pth"
 datasets:
   train_json: "../datasets/coco/3squares/instances_train.json"
