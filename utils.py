@@ -41,14 +41,18 @@ def generate_train_config():
     config_path = pm.model_config
     config_path.parent.mkdir(parents=True, exist_ok=True)
 
+    # Verify base config exists
+    if not pm.base_config.exists():
+        raise FileNotFoundError(f"Base config not found at: {pm.base_config}")
+
     # Get the template from settings
     template = pm.settings["train_config_template"]
 
-    # Prepare substitutions
+    # Prepare substitutions - use absolute paths
     substitutions = {
-        "base_config": pm.settings["maskdino"]["base_config"],
-        "pretrained_weights": str(pm.pretrained_weights.relative_to(pm.maskdino_repo)),
-        "output_dir": str(pm.output_dir.relative_to(pm.maskdino_repo))
+        "base_config": str(pm.base_config.absolute()),
+        "pretrained_weights": str(pm.pretrained_weights.absolute()),
+        "output_dir": str(pm.output_dir.absolute())
     }
 
     # Format the template
@@ -57,6 +61,7 @@ def generate_train_config():
     with config_path.open("w", encoding="utf-8") as f:
         f.write(config_content)
     print(f"Training config generated at: {config_path}")
+    print(f"Base config path: {substitutions['base_config']}")
 
 
 class DataProcessor:

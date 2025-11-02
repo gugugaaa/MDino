@@ -39,6 +39,7 @@ fi
 echo "🔄 (4/10) 立即加载环境变量..."
 if [ -f "$BASHRC_FILE" ]; then
     . "$BASHRC_FILE"
+fi
 
 if [ -z "${CUDA_HOME:-}" ]; then
     echo "❌ 错误: CUDA_HOME 未能成功加载。请检查 .bashrc 文件！"

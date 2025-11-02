@@ -26,8 +26,8 @@ def main():
     parser.add_argument("--EVAL_FLAG", type=int, default=1)
     args = parser.parse_args()
 
-    # Set the config file path relative to the MaskDINO repo
-    args.config_file = pm.get_maskdino_relative_path(pm.model_config)
+    # Set the config file path (use absolute path)
+    args.config_file = str(pm.model_config)
 
     print(f"Starting training with config: {args.config_file}")
     maskdino_main(args)

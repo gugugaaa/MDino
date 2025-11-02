@@ -10,7 +10,7 @@ class PathManager:
 
         # MaskDINO related paths
         self.maskdino_repo = self._resolve_path(self.settings["maskdino"]["repo_path"])
-
+        self.base_config = self._resolve_path(self.settings["maskdino"]["base_config"])
         # Model and output paths
         self.model_dir = self._resolve_path(self.settings["model"]["model_dir"])
         self.output_dir = self._resolve_path(self.settings["model"]["output_dir"])
@@ -37,10 +37,6 @@ class PathManager:
     def _resolve_path(self, relative_path: str) -> Path:
         """Resolves a path relative to the project root."""
         return (self.project_root / relative_path).resolve()
-
-    def get_maskdino_relative_path(self, abs_path: Path) -> str:
-        """Returns the path relative to the MaskDINO repo."""
-        return str(abs_path.relative_to(self.maskdino_repo))
 
 # Global instance
 path_manager = PathManager()
